@@ -1,5 +1,6 @@
 import HTTPStatus from 'http-status';
 import Category from './category.model';
+import Product from '../products/product.model';
 
 export async function getCategoryList(req, res) {
     try {
@@ -12,8 +13,8 @@ export async function getCategoryList(req, res) {
 
 export async function getCategory(req, res) {
     try {
-        const category = await Category.findOne({ name: req.params.id });
-        return res.status(HTTPStatus.OK).json({ category });
+        const products = await Product.find({ category: req.params.id });
+        return res.status(HTTPStatus.OK).json({ products });
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
     }

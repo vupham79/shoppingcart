@@ -3,6 +3,11 @@ const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
+    },
+    category: {
+        type: String,
+        default: "Unknown",
     },
     status: {
         type: String,
@@ -10,7 +15,12 @@ const ProductSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        default: "../../default.jpg",
+        default: "../../assets/image/default.jpg",
+    },
+    price: {
+        type: Number,
+        min: 0,
+        default: 0,
     },
     quantity: {
         type: Number,
@@ -22,5 +32,17 @@ const ProductSchema = new mongoose.Schema({
         default: false,
     },
 });
+
+ProductSchema.methods = {
+    toJSON() {
+        return {
+            _id: this._id,
+            name: this.name,
+            image: this.image,
+            price: this.price,
+            quantity: this.quantity
+        }
+    }
+}
 
 export default mongoose.model("Product", ProductSchema);

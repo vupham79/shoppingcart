@@ -23,13 +23,14 @@ const UserSchema = new mongoose.Schema({
         minlength: 6,
         maxlength: 16,
         required: true,
+        unique: true,
     },
     address: {
         type: String,
     },
     isRemoved: {
-        type: Boolean,
-        default: false,
+        type: String,
+        default: "user",
     }
 }, {
     timestamps: true

@@ -3,10 +3,11 @@ const CategorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     image: {
         type: String,
-        default: "../../default.jpg",
+        default: "../../assets/image/default.jpg",
     },
     isRemoved: {
         type: Boolean,

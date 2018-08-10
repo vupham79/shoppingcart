@@ -5,7 +5,7 @@ import User from './user.model';
 export async function getUserList(req, res) {
     try {
         const users = await User.find()
-        .sort({ fullname: 1 })
+            .sort({ fullname: 1 })
         return res.status(HTTPStatus.OK).json({ users });
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
@@ -38,6 +38,20 @@ export async function createUser(req, res) {
     try {
         const user = await User.create(req.body);
         return res.status(HTTPStatus.CREATED).json(user);
+    } catch (e) {
+        return res.status(HTTPStatus.BAD_REQUEST).json(e);
+    }
+}
+
+export async function registerUser(req, res) {
+    try {
+        const user = {
+            phone : req.body.phone,
+            password : req.body.password,
+            name : req.body.name,
+            address : req.body.name
+        }
+        return res.status(HTTPStatus.OK).json( await User.create(user) );
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
     }

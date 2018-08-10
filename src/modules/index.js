@@ -5,4 +5,5 @@ import userRoutes from './users/user.routes';
 export default app => {
     app.use('/user', userRoutes);
     app.use('/category', categoryRoutes);
+    app.use('/product', productRoutes);
 };
