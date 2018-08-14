@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 const CategorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -14,7 +14,16 @@ const CategorySchema = new mongoose.Schema({
         default: false,
     },
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
+CategorySchema.methods = {
+    toJSON() {
+        return {
+            name: this.name,
+            product: this.product,
+            image: this.image,
+        }
+    }
+}
 export default mongoose.model("Category", CategorySchema);

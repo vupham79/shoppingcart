@@ -4,7 +4,9 @@ import Product from '../products/product.model';
 
 export async function getCategoryList(req, res) {
     try {
-        const categories = await Category.find({ isRemoved: false });
+        const categories = await Category
+        .find({ isRemoved: false })
+        .populate('product');
         return res.status(HTTPStatus.OK).json({ categories });
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
@@ -13,8 +15,10 @@ export async function getCategoryList(req, res) {
 
 export async function getCategory(req, res) {
     try {
-        const products = await Product.find({ category: req.params.id });
-        return res.status(HTTPStatus.OK).json({ products });
+        const product = await Product
+        .find({ isRemoved: false, category: req.params.id })
+        .populate('category');
+        return res.status(HTTPStatus.OK).json({ product });
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
     }

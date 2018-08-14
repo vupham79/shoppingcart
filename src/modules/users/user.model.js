@@ -15,8 +15,8 @@ const UserSchema = new mongoose.Schema({
         required: true,
     },
     role: {
-        type: Number,
-        default: 1,
+        type: String,
+        default: "user",
     },
     phone: {
         type: String,
@@ -29,8 +29,8 @@ const UserSchema = new mongoose.Schema({
         type: String,
     },
     isRemoved: {
-        type: String,
-        default: "user",
+        type: Boolean,
+        default: false,
     }
 }, {
     timestamps: true
@@ -64,6 +64,7 @@ UserSchema.methods = {
             role: this.role,
             phone: this.phone,
             address: this.address,
+            isRemoved: this.isRemoved,
             createdAt: this.createdAt
         }
     },

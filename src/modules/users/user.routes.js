@@ -6,12 +6,13 @@ import { roleAdmin, roleUser } from '../../services/role.services';
 import userValidation from './user.validations';
 const routes = new Router();
 
-routes.get('/', userController.getUserList);
+routes.get('/', authJwt, userController.getUserList);
 routes.post('/', authJwt, roleAdmin, userController.createUser)
+routes.post('/login', authLocal, userController.authUser);
+routes.post('/register', validate(userValidation.register), userController.registerUser);
 routes.get('/:id', authJwt, roleUser, userController.getUser);
 routes.post('/:id', authJwt, roleAdmin, userController.deleteUser);
-routes.patch('/:id', authJwt, validate(userValidation.editProfile), userController.updateUser);
-routes.post('/register', validate(userValidation.register), userController.registerUser);
-routes.post('/login', authLocal, validate(userValidation.login), userController.authUser);
+routes.patch('/:id/edit', authJwt, roleAdmin, validate(userValidation.editProfile), userController.editUser);
+routes.patch('/:id/update', authJwt, roleUser, validate(userValidation.updateProfile), userController.updateUser);
 
 export default routes;

@@ -3,7 +3,9 @@ import Product from './product.model';
 
 export async function getProductList(req, res) {
     try {
-        const products = await Product.find({ isRemoved: false });
+        const products = await Product
+        .find({ isRemoved: false })
+        .populate('category');
         return res.status(HTTPStatus.OK).json({ products });
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);
