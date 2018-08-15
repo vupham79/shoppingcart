@@ -20,6 +20,7 @@ const CategorySchema = new mongoose.Schema({
 CategorySchema.methods = {
     toJSON() {
         return {
+            _id: this._id,
             name: this.name,
             image: this.image,
         }
