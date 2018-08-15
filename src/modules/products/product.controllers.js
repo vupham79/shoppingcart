@@ -26,6 +26,8 @@ export async function getProduct(req, res) {
 
 export async function createProduct(req, res) {
     try {
+        const category = await Category.findOne({ isRemoved: false, name: req.body.category });
+        req.body.category = category._id;
         const product = await Product.create(req.body);
         return res.status(HTTPStatus.OK).json({ product });
     } catch (error) {
@@ -36,8 +38,6 @@ export async function createProduct(req, res) {
 export async function updateProduct(req, res) {
     try {
         const product = await Product.findOne({ isRemoved: false, name: req.params.id });
-        const categoryId = await Category.findOne({ name: req.body.category })._id;
-        console.log(categoryId);
         return res.status(HTTPStatus.OK).json(product);
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);
@@ -46,9 +46,12 @@ export async function updateProduct(req, res) {
 
 export async function deleteProduct(req, res) {
     try {
-        const product = await Product.findOne({ isRemoved: false, name: req.params.id });
-        product.isRemoved = true;
-        product.save();
+        const product = await Product.findOneAndUpdate(
+            //Query
+            { isRemoved: false, id: req.params.id }, 
+            //Content to update
+            { isRemoved: true },    
+        )
         return res.status(HTTPStatus.OK).json(product);
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);

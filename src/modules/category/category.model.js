@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 const CategorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -22,6 +22,7 @@ CategorySchema.methods = {
         return {
             _id: this._id,
             name: this.name,
+            isRemoved: this.isRemoved,
             image: this.image,
         }
     }

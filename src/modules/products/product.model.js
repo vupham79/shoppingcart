@@ -1,32 +1,37 @@
 import mongoose, { Schema } from 'mongoose';
 const ProductSchema = new mongoose.Schema({
-    name: {
+    id: {
         type: String,
         required: true,
         unique: true,
+    },
+    name: {
+        type: String,
+        required: true,
     },
     category: {
         type: Schema.Types.ObjectId,
         ref: 'Category',
         required: true,
     },
-    status: {
+    detail: {
         type: String,
-        default: "Availble",
     },
     image: {
         type: String,
         default: "../../assets/image/default.jpg",
     },
+    status: {
+        type: String,
+        default: "Còn hàng",
+    },
     price: {
-        type: Number,
-        min: 0,
-        default: 0,
+        type: String,
+        default: "Giá liên hệ",
     },
     quantity: {
         type: Number,
         default: 0,
-        min: 0,
     },
     isRemoved: {
         type: Boolean,
@@ -38,11 +43,14 @@ ProductSchema.methods = {
     toJSON() {
         return {
             _id: this._id,
+            id: this.id,
             name: this.name,
             category: this.category,
+            status: this.status,
             image: this.image,
             price: this.price,
-            quantity: this.quantity
+            quantity: this.quantity,
+            isRemoved: this.isRemoved,
         }
     }
 }
