@@ -6,7 +6,7 @@ import { roleAdmin, roleUser } from '../../services/role.services';
 import userValidation from './user.validations';
 const routes = new Router();
 
-routes.get('/', authJwt, userController.getUserList);
+routes.get('/', authJwt, roleAdmin, userController.getUserList);
 routes.post('/', authJwt, roleAdmin, userController.createUser)
 routes.post('/login', authLocal, userController.authUser);
 routes.post('/register', validate(userValidation.register), userController.registerUser);

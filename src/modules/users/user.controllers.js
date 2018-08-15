@@ -14,7 +14,11 @@ export async function getUserList(req, res) {
 
 export async function getUser(req, res) {
     try {
-        const user = await User.find({ isRemoved: false, phone: req.params.id });
+        if (req.user.role == "admin") {
+            const user = await User.find({ isRemoved: false, phone: req.params.id });
+            return res.status(HTTPStatus.OK).json(user);
+        }
+        const user = await User.find({ isRemoved: false, phone: req.user.phone });
         return res.status(HTTPStatus.OK).json(user);
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
@@ -23,6 +27,9 @@ export async function getUser(req, res) {
 
 export async function updateUser(req, res) {
     try {
+        if (req.user.phone != req.params.id) {
+            return res.sendStatus(HTTPStatus.FORBIDDEN);
+        }
         const userUpdated = await User.findOne({ isRemoved: false, phone: req.params.id });
         userUpdated.name = req.body.name;
         userUpdated.password = req.body.password;
