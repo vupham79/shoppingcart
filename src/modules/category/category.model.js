@@ -21,7 +21,6 @@ CategorySchema.methods = {
     toJSON() {
         return {
             name: this.name,
-            product: this.product,
             image: this.image,
         }
     }
