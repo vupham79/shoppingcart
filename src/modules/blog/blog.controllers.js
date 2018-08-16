@@ -49,8 +49,7 @@ export async function deleteBlog(req, res) {
 export async function updateBlog(req, res) {
     try {
         const ownerId = (await User.findOne({ isRemoved: false, phone: req.body.owner }))._id;
-        console.log(ownerId);
-        const blog = await Blog.findOne(
+        const blog = await Blog.findOneAndUpdate(
             { isRemoved: false, _id: req.params.id },
             { title: req.body.title, owner: ownerId, content: req.body.content }
         );

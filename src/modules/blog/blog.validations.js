@@ -12,7 +12,7 @@ export default {
         body: {
             title: Joi.string().trim().required(),
             owner: Joi.string().required(),
-            content: Joi.string(),
+            content: Joi.string().not().empty(),
         }
     }
 }
