@@ -10,7 +10,7 @@ export default {
     updateCategory: {
         body: {
             name: Joi.string().min(3).required(),
-            image: Joi.string()
+            image: Joi.string().required()
         }
     }
 };

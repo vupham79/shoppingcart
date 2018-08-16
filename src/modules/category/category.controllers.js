@@ -34,8 +34,8 @@ export async function createCategory(req, res) {
 
 export async function updateCategory(req, res) {
     try {
-        const category = await Category.findOneAndUpdate(
-            { _id: req.params.id },
+        const category = await Category.findByIdAndUpdate(
+            req.params.id,
             {
                 name: req.body.name,
                 image: req.body.image

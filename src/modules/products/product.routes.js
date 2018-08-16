@@ -8,7 +8,7 @@ const routes = new Router();
 
 routes.get('/', productController.getProductList);
 routes.post('/', authJwt, roleAdmin, validate(productValidation.createProduct), productController.createProduct);
-routes.post('/:id', authJwt, roleAdmin, productController.deleteProduct);
+routes.delete('/:id', authJwt, roleAdmin, productController.deleteProduct);
 routes.get('/:id', productController.getProduct);
 routes.patch('/:id', authJwt, roleAdmin, validate(productValidation.updateProduct), productController.updateProduct);
 

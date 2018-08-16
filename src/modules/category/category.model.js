@@ -24,6 +24,7 @@ CategorySchema.methods = {
             name: this.name,
             isRemoved: this.isRemoved,
             image: this.image,
+            createdAt: this.createdAt,
         }
     }
 }

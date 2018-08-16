@@ -11,7 +11,7 @@ routes.post('/', authJwt, roleAdmin, userController.createUser)
 routes.post('/login', authLocal, userController.authUser);
 routes.post('/register', validate(userValidation.register), userController.registerUser);
 routes.get('/:id', authJwt, roleUser, userController.getUser);
-routes.post('/:id', authJwt, roleAdmin, userController.deleteUser);
+routes.delete('/:id', authJwt, roleAdmin, userController.deleteUser);
 routes.patch('/:id/edit', authJwt, roleAdmin, validate(userValidation.editProfile), userController.editUser);
 routes.patch('/:id/update', authJwt, roleUser, validate(userValidation.updateProfile), userController.updateUser);
 

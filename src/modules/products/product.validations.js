@@ -6,7 +6,7 @@ export default {
             id: Joi.string().trim().required(),
             name: Joi.string().min(3).required(),
             category: Joi.string().required(),
-            image: Joi.string(),
+            image: Joi.string().required(),
             status: Joi.string(),
             price: Joi.string(),
             quantity: Joi.number().min(0),
@@ -14,10 +14,10 @@ export default {
     },
     updateProduct: {
         body: {
-            name: Joi.string().min(3).trim(),
+            name: Joi.string().min(3).trim().required(),
             category: Joi.string(),
-            image: Joi.string(),
-            price: Joi.string().min(0),
+            image: Joi.string().required(),
+            price: Joi.string().required(),
             quantity: Joi.number().min(0),
         }
     }

@@ -26,8 +26,7 @@ export async function getProduct(req, res) {
 
 export async function createProduct(req, res) {
     try {
-        const category = await Category.findOne({ isRemoved: false, name: req.body.category });
-        req.body.category = category._id;
+        req.body.category = (await Category.findOne({ isRemoved: false, name: req.body.category }))._id;
         const product = await Product.create(req.body);
         return res.status(HTTPStatus.OK).json({ product });
     } catch (error) {

@@ -37,7 +37,7 @@ const ProductSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-});
+}, { timestamps: true });
 
 ProductSchema.methods = {
     toJSON() {
@@ -50,6 +50,7 @@ ProductSchema.methods = {
             image: this.image,
             price: this.price,
             quantity: this.quantity,
+            createdAt: this.createdAt,
             isRemoved: this.isRemoved,
         }
     }

@@ -5,7 +5,7 @@ import User from './user.model';
 export async function getUserList(req, res) {
     try {
         const users = await User.find()
-            .sort({ fullname: 1 })
+            .sort({ fullname: 1 });
         return res.status(HTTPStatus.OK).json({ users });
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
