@@ -17,9 +17,11 @@ export async function getUser(req, res) {
         if (req.user.role == "admin") {
             const user = await User.find({ isRemoved: false, phone: req.params.id });
             return res.status(HTTPStatus.OK).json(user);
+        } else if (req.user.phone == req.params.id) {
+            const user = await User.find({ isRemoved: false, phone: req.params.id });
+            return res.status(HTTPStatus.OK).json(user);
         }
-        const user = await User.find({ isRemoved: false, phone: req.user.phone });
-        return res.status(HTTPStatus.OK).json(user);
+        return res.sendStatus(HTTPStatus.FORBIDDEN);
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
     }
@@ -57,8 +59,14 @@ export async function editUser(req, res) {
 
 export async function createUser(req, res) {
     try {
-        const user = await User.create(req.body);
-        return res.status(HTTPStatus.CREATED).json(user);
+        const user = {
+            phone: req.body.phone,
+            password: req.body.password,
+            name: req.body.name,
+            address: req.body.address,
+            role: req.body.role
+        }
+        return res.status(HTTPStatus.CREATED).json(await User.create(user));
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
     }

@@ -15,7 +15,7 @@ export default {
     updateProduct: {
         body: {
             name: Joi.string().min(3).trim().required(),
-            category: Joi.string(),
+            category: Joi.string().required(),
             image: Joi.string().required(),
             price: Joi.string().required(),
             quantity: Joi.number().min(0),
