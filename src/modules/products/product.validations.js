@@ -6,7 +6,6 @@ export default {
             id: Joi.string().trim().required(),
             name: Joi.string().min(3).required(),
             category: Joi.string().required(),
-            image: Joi.string().required(),
             status: Joi.string(),
             price: Joi.string(),
             quantity: Joi.number().min(0),
