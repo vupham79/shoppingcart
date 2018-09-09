@@ -45,6 +45,15 @@ const OrderSchema = new mongoose.Schema({
         timestamps: true,
     });
 
+OrderSchema.pre('save', function (next) {
+    if (this.isModified('quantity')) {
+        if (this.quantity === 0) {
+            this.status = "Hết hàng";
+        }
+    }
+    return next();
+});
+
 OrderSchema.methods = {
     toJSON() {
         return {

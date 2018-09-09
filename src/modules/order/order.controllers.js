@@ -18,9 +18,9 @@ export async function getOrders(req, res) {
 
 export async function getOrder(req, res) {
     try {
-        const order = await Order.findOne({ isRemoved: false, id: req.params.id }).populate("products.product customer", "phone name id price");
+        const order = await Order.findOne({ isRemoved: false, _id: req.params.id }).populate("products.product customer", "phone name id price");
         if (order) {
-            if (req.params.user != order.customer._id) {
+            if (String(req.user._id) != String(order.customer._id)) {
                 return res.status(HttpStatus.BAD_REQUEST).send("Không được quyền truy cập");
             }
             return res.status(HttpStatus.OK).json({ order });
@@ -34,8 +34,10 @@ export async function getOrder(req, res) {
 export async function createOrder(req, res) {
     try {
         //Get the Customer Object ID from db
-        req.body.customer = (await Customer.findOne({ isRemoved: false, phone: req.body.customer }))._id;
-
+        req.body.customer = (await Customer.findOne({ isRemoved: false, _id: req.user._id }))._id;
+        if (!req.body.customer) {
+            return res.status(HttpStatus.BAD_REQUEST).send("Tài khoản không tồn tại");
+        }
         //Initialize to check if order id existed?
         const order = await Order.create({
             id: req.body.id,
@@ -51,15 +53,19 @@ export async function createOrder(req, res) {
 
         //Change product in request into object id ref in Product model
         for (let i = 0; i < req.body.products.length; i++) {
-            const product = await Product.findOne({ isRemoved: false, id: req.body.products[i].product });
+            const product = await Product.findOne({ isRemoved: false, _id: req.body.products[i].product });
             if (product.quantity <= 0 || product.quantity < req.body.products[i].quantity) {
                 errorMessage = `${product.name} không đủ hàng\n` + errorMessage;
             } else {
                 if (errorMessage.length === 0) {
-                    tasks.update("products", { isRemoved: false, id: req.body.products[i].product }, { $inc: { quantity: -req.body.products[i].quantity } });
                     if (product.price != "Giá liên hệ") {
                         total = parseFloat(product.price) * req.body.products[i].quantity + total;
                     }
+                    if ((product.quantity - req.body.products[i].quantity) === 0) {
+                        tasks.update("products", { isRemoved: false, _id: req.body.products[i].product._id }, { $inc: { quantity: -req.body.products[i].quantity, status: "Hết hàng" } });
+                    }
+                    //Add Update job to batch updates
+                    tasks.update("products", { isRemoved: false, _id: req.body.products[i].product._id }, { $inc: { quantity: -req.body.products[i].quantity } });
                     if (convertedProduct.length > 0) {
                         let flag = false;
                         for (let j = 0; j < convertedProduct.length; j++) {
@@ -85,10 +91,10 @@ export async function createOrder(req, res) {
             };
         };
         if (errorMessage.length > 0) {
-            await Order.findOneAndRemove({ isRemoved: false, id: req.body.id });
+            await Order.findOneAndRemove({ isRemoved: false, _id: req.body.id });
             return res.status(HttpStatus.BAD_REQUEST).send({ errorMessage });
         } else if (convertedProduct.length <= 0) {
-            await Order.findOneAndRemove({ isRemoved: false, id: req.body.id });
+            await Order.findOneAndRemove({ isRemoved: false, _id: req.body.id });
             return res.status(HttpStatus.BAD_REQUEST).send("Tạo order thất bại");
         } else {
             //Perform tasks batch
@@ -100,7 +106,7 @@ export async function createOrder(req, res) {
                     return res.status(HttpStatus.OK).json({ order });
                 })
                 .catch(async err => {
-                    await Order.findOneAndRemove({ isRemoved: false, id: req.body.id });
+                    await Order.findOneAndRemove({ isRemoved: false, _id: req.body.id });
                     return res.status(HttpStatus.BAD_REQUEST).json(err);
                 })
         }
@@ -113,11 +119,13 @@ export async function updateOrder(req, res) {
     try {
         if (req.body.products) {
             //Find old order
-            const order = await Order.findOne({ isRemoved: false, id: req.params.id }).populate("products.product");
+            const order = await Order.findOne({ isRemoved: false, _id: req.params.id }).populate("products.product");
             if (!order) {
                 return res.status(HttpStatus.BAD_REQUEST).send("Order không tồn tại");
             }
-
+            if (String(order.customer) != String(req.user._id)) {
+                return res.status(HttpStatus.BAD_REQUEST).send("Không được quyền truy cập");
+            }
             //Create batch transactions by Fawn
             var tasks = Fawn.Task()
             var errorMessage = "";
@@ -132,14 +140,14 @@ export async function updateOrder(req, res) {
 
             //Change product in request into object id ref in Product model
             for (let i = 0; i < req.body.products.length; i++) {
-                const product = await Product.findOne({ isRemoved: false, id: req.body.products[i].product });
+                const product = await Product.findOne({ isRemoved: false, _id: req.body.products[i].product });
                 if (!product) {
                     return res.status(HttpStatus.BAD_REQUEST).send(`Không tìm thấy sản phẩm ${req.body.products[i].product}`);
                 }
                 if (product.quantity <= 0 || product.quantity < req.body.products[i].quantity) {
                     errorMessage = `${product.name} không đủ hàng\n` + errorMessage;
                 } else {
-                    tasks.update("products", { isRemoved: false, id: req.body.products[i].product }, { $inc: { quantity: -req.body.products[i].quantity } });
+                    tasks.update("products", { isRemoved: false, _id: req.body.products[i].product }, { $inc: { quantity: -req.body.products[i].quantity } });
                     if (product.price != "Giá liên hệ") {
                         total = parseFloat(product.price) * req.body.products[i].quantity + total;
                     }
@@ -185,7 +193,15 @@ export async function updateOrder(req, res) {
         } else
             if (req.body.address) {
                 //Find old order
-                const order = await Order.findOneAndUpdate({ isRemoved: false, id: req.params.id }, { address: req.body.address });
+                const order = await Order.findOne({ isRemoved: false, _id: req.params.id }).populate("products.product")
+                if (!order) {
+                    return res.status(HttpStatus.BAD_REQUEST).send("Order không tồn tại");
+                }
+                if (String(order.customer) != String(req.user._id)) {
+                    return res.status(HttpStatus.BAD_REQUEST).send("Không được quyền truy cập");
+                }
+                order.address = req.body.address;
+                await order.save();
                 return res.status(HttpStatus.OK).json({ order });
             }
     } catch (error) {
@@ -195,9 +211,15 @@ export async function updateOrder(req, res) {
 
 export async function deleteOrder(req, res) {
     try {
-        const order = await Order.findOneAndUpdate({ isRemoved: false, id: req.params.id }, { isRemoved: true }).populate("products.product", "id name price");
+        const order = await Order.findOne({ isRemoved: false, _id: req.params.id }).populate("products.product", "id name price");
         if (order) {
-            return res.status(HttpStatus.OK).json(order);
+            if (String(order.customer) === String(req.user._id)) {
+                order.isRemoved = true;
+                await order.save();
+                return res.status(HttpStatus.OK).json(order);
+            } else {
+                return res.status(HttpStatus.BAD_REQUEST).send("Không được quyền truy cập");
+            }
         } else {
             return res.status(HttpStatus.BAD_REQUEST).send("Order không tồn tại");
         }

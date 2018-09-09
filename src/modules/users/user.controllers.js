@@ -15,10 +15,10 @@ export async function getUserList(req, res) {
 export async function getUser(req, res) {
     try {
         if (req.user.role == "admin") {
-            const user = await User.find({ isRemoved: false, phone: req.params.id });
+            const user = await User.find({ isRemoved: false, _id: req.params.id });
             return res.status(HTTPStatus.OK).json(user);
-        } else if (req.user.phone == req.params.id) {
-            const user = await User.find({ isRemoved: false, phone: req.params.id });
+        } else if (req.user._id == req.params.id) {
+            const user = await User.find({ isRemoved: false, _id: req.params.id });
             return res.status(HTTPStatus.OK).json(user);
         }
         return res.sendStatus(HTTPStatus.FORBIDDEN);
@@ -32,10 +32,16 @@ export async function updateUser(req, res) {
         if (req.user.phone != req.params.id) {
             return res.sendStatus(HTTPStatus.FORBIDDEN);
         }
-        const userUpdated = await User.findOne({ isRemoved: false, phone: req.params.id });
-        userUpdated.name = req.body.name;
-        userUpdated.password = req.body.password;
-        userUpdated.address = req.body.address;
+        const userUpdated = await User.findOne({ isRemoved: false, _id: req.params.id });
+        if (req.body.name) {
+            userUpdated.name = req.body.name;
+        }
+        if (req.body.password) {
+            userUpdated.password = req.body.password;
+        }
+        if (req.body.address) {
+            userUpdated.address = req.body.address;
+        }
         userUpdated.save();
         return res.status(HTTPStatus.OK).json(userUpdated);
     } catch (e) {
@@ -45,11 +51,19 @@ export async function updateUser(req, res) {
 
 export async function editUser(req, res) {
     try {
-        const userUpdated = await User.findOne({ isRemoved: false, phone: req.params.id });
-        userUpdated.name = req.body.name;
-        userUpdated.password = req.body.password;
-        userUpdated.address = req.body.address;
-        userUpdated.role = req.body.role;
+        const userUpdated = await User.findOne({ isRemoved: false, _id: req.params.id });
+        if (req.body.name) {
+            userUpdated.name = req.body.name;
+        }
+        if (req.body.password) {
+            userUpdated.password = req.body.password;
+        }
+        if (req.body.address) {
+            userUpdated.address = req.body.address;
+        }
+        if (req.body.role) {
+            userUpdated.role = req.body.role;
+        }
         userUpdated.save();
         return res.status(HTTPStatus.OK).json(userUpdated);
     } catch (e) {
@@ -88,9 +102,7 @@ export async function registerUser(req, res) {
 
 export async function deleteUser(req, res) {
     try {
-        const user = await User.findOne({ isRemoved: false, phone: req.params.id });
-        user.isRemoved = true;
-        user.save();
+        const user = await User.findOneAndUpdate({ isRemoved: false, _id: req.params.id }, { isRemoved: true });
         return res.status(HTTPStatus.OK).json({ user });
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);

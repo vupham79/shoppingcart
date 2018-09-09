@@ -17,6 +17,9 @@ export async function getCategory(req, res) {
         const product = await Product
             .find({ isRemoved: false, category: req.params.id })
             .populate('category', 'name');
+        if (!product) {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Category không tìm thấy");
+        }
         return res.status(HTTPStatus.OK).json({ product });
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
@@ -34,13 +37,17 @@ export async function createCategory(req, res) {
 
 export async function updateCategory(req, res) {
     try {
-        const category = await Category.findByIdAndUpdate(
-            req.params.id,
-            {
-                name: req.body.name,
-                image: req.body.image
-            }
-        );
+        const category = await Category.findOne({ isRemoved: false, _id: req.params.id });
+        if (!category) {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Category không tìm thấy");
+        }
+        if (req.body.name) {
+            category.name = req.body.name;
+        }
+        if (req.body.image) {
+            category.image = req.body.image;
+        }
+        category.save();
         return res.status(HTTPStatus.OK).json(category);
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);
@@ -65,6 +72,9 @@ export async function deleteCategory(req, res) {
                 //Content to update
                 { isRemoved: true }
             );
+        if (!category) {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Category không tồn tại");
+        }
         return res.status(HTTPStatus.OK).json({ category });
     } catch (e) {
         return res.status(HTTPStatus.BAD_REQUEST).json(e);

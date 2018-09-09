@@ -16,7 +16,7 @@ export async function getProductList(req, res) {
 export async function getProduct(req, res) {
     try {
         const product = await Product
-            .findOne({ isRemoved: false, name: req.params.id })
+            .findOne({ isRemoved: false, _id: req.params.id })
             .populate('category', 'name');
         if (product) {
             return res.status(HTTPStatus.OK).json({ product });
@@ -30,7 +30,12 @@ export async function getProduct(req, res) {
 
 export async function createProduct(req, res) {
     try {
-        req.body.category = (await Category.findOne({ isRemoved: false, name: req.body.category }))._id;
+        req.body.category = (await Category.findOne({ isRemoved: false, _id: req.body.category }))._id;
+        if (req.body.quantity === 0) {
+            req.body.status = "Hết hàng";
+        } else {
+            req.body.status = "Còn hàng";
+        }
         const product = await Product.create(req.body);
         return res.status(HTTPStatus.OK).json({ product });
     } catch (error) {
@@ -40,7 +45,7 @@ export async function createProduct(req, res) {
 
 export async function updateProduct(req, res) {
     try {
-        const product = await Product.findOne({ isRemoved: false, id: req.params.id });
+        const product = await Product.findOne({ isRemoved: false, _id: req.params.id });
         if (product) {
             if (req.body.name) {
                 product.name = req.body.name;
@@ -56,6 +61,11 @@ export async function updateProduct(req, res) {
             }
             if (req.body.quantity) {
                 product.quantity = req.body.quantity;
+                if (req.body.quantity === 0) {
+                    product.status = "Hết hàng";
+                } else {
+                    product.status = "Còn hàng";
+                }
             }
             product.save();
             return res.status(HTTPStatus.OK).json(product);
@@ -71,7 +81,7 @@ export async function deleteProduct(req, res) {
     try {
         const product = await Product.findOneAndUpdate(
             //Query
-            { isRemoved: false, id: req.params.id },
+            { isRemoved: false, _id: req.params.id },
             //Content to update
             { isRemoved: true },
         )
