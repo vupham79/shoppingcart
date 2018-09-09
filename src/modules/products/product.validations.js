@@ -13,10 +13,10 @@ export default {
     },
     updateProduct: {
         body: {
-            name: Joi.string().min(3).trim().required(),
-            category: Joi.string().required(),
-            image: Joi.string().required(),
-            price: Joi.string().required(),
+            name: Joi.string().min(3).trim(),
+            category: Joi.string(),
+            image: Joi.string(),
+            price: Joi.string(),
             quantity: Joi.number().min(0),
         }
     }

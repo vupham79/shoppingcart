@@ -5,11 +5,11 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        dropDups: true
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: true,
     },
     products: [
         {

@@ -18,7 +18,11 @@ export async function getProduct(req, res) {
         const product = await Product
             .findOne({ isRemoved: false, name: req.params.id })
             .populate('category', 'name');
-        return res.status(HTTPStatus.OK).json({ product });
+        if (product) {
+            return res.status(HTTPStatus.OK).json({ product });
+        } else {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Sản phẩm không tồn tại");
+        }
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);
     }
@@ -37,13 +41,27 @@ export async function createProduct(req, res) {
 export async function updateProduct(req, res) {
     try {
         const product = await Product.findOne({ isRemoved: false, id: req.params.id });
-        product.name = req.body.name;
-        product.category = req.body.category;
-        product.image = req.body.image;
-        product.price = req.body.price;
-        product.quantity = req.body.quantity;
-        product.save();
-        return res.status(HTTPStatus.OK).json(product);
+        if (product) {
+            if (req.body.name) {
+                product.name = req.body.name;
+            }
+            if (req.body.category) {
+                product.category = req.body.category;
+            }
+            if (req.body.image) {
+                product.image = req.body.image;
+            }
+            if (req.body.price) {
+                product.price = req.body.price;
+            }
+            if (req.body.quantity) {
+                product.quantity = req.body.quantity;
+            }
+            product.save();
+            return res.status(HTTPStatus.OK).json(product);
+        } else {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Sản phẩm không tồn tại");
+        }
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);
     }
@@ -57,7 +75,11 @@ export async function deleteProduct(req, res) {
             //Content to update
             { isRemoved: true },
         )
-        return res.status(HTTPStatus.OK).json(product);
+        if (product) {
+            return res.status(HTTPStatus.OK).json(product);
+        } else {
+            return res.status(HTTPStatus.BAD_REQUEST).send("Sản phẩm không tồn tại");
+        }
     } catch (error) {
         return res.status(HTTPStatus.BAD_REQUEST).json(error);
     }

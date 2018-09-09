@@ -5,7 +5,6 @@ export default {
         body: {
             id: Joi.string().required(),
             customer: Joi.string().required(),
-            products: Joi.required(),
             address: Joi.string().required(),
         }
     },
