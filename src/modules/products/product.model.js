@@ -52,6 +52,7 @@ ProductSchema.methods = {
             price: this.price,
             quantity: this.quantity,
             createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
             isRemoved: this.isRemoved,
         }
     }

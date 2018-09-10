@@ -4,7 +4,6 @@ export default {
     createOrder: {
         body: {
             id: Joi.string().required(),
-            customer: Joi.string().required(),
             address: Joi.string().required(),
         }
     },

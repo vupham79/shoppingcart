@@ -1,5 +1,4 @@
 import HTTPStatus from 'http-status';
-import Category from '../category/category.model';
 import Product from './product.model';
 
 export async function getProductList(req, res) {
@@ -30,11 +29,10 @@ export async function getProduct(req, res) {
 
 export async function createProduct(req, res) {
     try {
-        req.body.category = (await Category.findOne({ isRemoved: false, _id: req.body.category }))._id;
-        if (req.body.quantity === 0) {
-            req.body.status = "Hết hàng";
-        } else {
+        if (req.body.quantity >= 0) {
             req.body.status = "Còn hàng";
+        } else {
+            req.body.status = "Hết hàng";
         }
         const product = await Product.create(req.body);
         return res.status(HTTPStatus.OK).json({ product });
@@ -59,7 +57,7 @@ export async function updateProduct(req, res) {
             if (req.body.price) {
                 product.price = req.body.price;
             }
-            if (req.body.quantity) {
+            if (req.body.quantity >= 0) {
                 product.quantity = req.body.quantity;
                 if (req.body.quantity === 0) {
                     product.status = "Hết hàng";
@@ -67,7 +65,7 @@ export async function updateProduct(req, res) {
                     product.status = "Còn hàng";
                 }
             }
-            product.save();
+            await product.save();
             return res.status(HTTPStatus.OK).json(product);
         } else {
             return res.status(HTTPStatus.BAD_REQUEST).send("Sản phẩm không tồn tại");
